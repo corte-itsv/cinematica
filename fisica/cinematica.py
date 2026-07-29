@@ -13,6 +13,7 @@ la cantidad de divisiones y el módulo estándar 'math' para evitar dependencias
 
 
 def calcular_lista_tiempo(tiempo_final: float, divisiones: int) -> list[float]:
+
     """Genera una lista de tiempos desde 0 hasta tiempo_final dividida en N intervalos.
 
     Args:
@@ -23,11 +24,24 @@ def calcular_lista_tiempo(tiempo_final: float, divisiones: int) -> list[float]:
         list[float]: Lista con los instantes de tiempo.
     """
 
+    lista_tiempos = []
+    tiempo_div = tiempo_final / divisiones
+
+    for division in range(divisiones): 
+        tmp = tiempo_div * (division+1)
+        lista_tiempos.append(tmp)
+
+    return lista_tiempos, lista_tiempos[len(lista_tiempos)-1]
+
 
 # --- FUNCIONES DE MRU ---
 
 def calcular_posicion_mru(posicion_inicial: float, velocidad: float, t: float) -> float:
+
     """Calcula la posición para un MRU en un tiempo t."""
+
+    posicion_x_tiempo = posicion_inicial + velocidad * (t - 0)
+    return posicion_x_tiempo
 
 def mru(
     posicion_inicial: float,
@@ -35,6 +49,7 @@ def mru(
     tiempo_final: float,
     divisiones: int,
 ) -> dict[str, list[float]]:
+
     """Calcula la posición, velocidad y aceleración para un MRU.
 
     Args:
@@ -53,6 +68,27 @@ def mru(
     Valida que el tiempo final sea positivo y que la cantidad de divisiones sea mayor a cero
     """
 
+    lista_tiempos = calcular_lista_tiempo(tiempo_final, divisiones)[0]
+
+    dicc_mru = {
+        "t": [lista_tiempos],
+        "x": [],
+        "v": [],
+        "a": []
+    }
+
+    tiempo = lista_tiempos * range(len(lista_tiempos))
+
+    for i in range(divisiones):
+        dicc_mru["x"].append(posicion)
+
+        dicc_mru["v"].append(velocidad)
+
+        dicc_mru["a"].append(aceleracion)
+        
+            
+
+
 
 # --- FUNCIONES DE MRUV ---
 
@@ -64,6 +100,8 @@ def calcular_posicion_mruv(
 ) -> float:
     """Calcula la posición para un MRUV en un tiempo t."""
 
+    posicion_final = posicion_inicial + velocidad_inicial * t + 0.5 * aceleracion * t * t
+    return posicion_final
 
 def calcular_velocidad_mruv(velocidad_inicial: float, aceleracion: float, t: float) -> float:
     """Calcula la velocidad para un MRUV en un tiempo t."""
