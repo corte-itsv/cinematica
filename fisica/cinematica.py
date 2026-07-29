@@ -9,8 +9,7 @@ Todos los cálculos y estructuras de datos se resuelven utilizando listas de Pyt
 la cantidad de divisiones y el módulo estándar 'math' para evitar dependencias de numpy.
 """
 
-import math
-import fisica.constantes as c
+#importar librerias necesarias y modulo de constantes !
 
 
 def calcular_lista_tiempo(tiempo_final: float, divisiones: int) -> List[float]:
@@ -23,18 +22,12 @@ def calcular_lista_tiempo(tiempo_final: float, divisiones: int) -> List[float]:
     Returns:
         List[float]: Lista con los instantes de tiempo.
     """
-    dt = tiempo_final / divisiones
-    t = []
-    for i in range(divisiones + 1):
-        t.append(i * dt)
-    return t
 
 
 # --- FUNCIONES DE MRU ---
 
 def calcular_posicion_mru(posicion_inicial: float, velocidad: float, t: float) -> float:
     """Calcula la posición para un MRU en un tiempo t."""
-    return posicion_inicial + velocidad * t
 
 def mru(
     posicion_inicial: float,
@@ -59,30 +52,6 @@ def mru(
 
     Valida que el tiempo final sea positivo y que la cantidad de divisiones sea mayor a cero
     """
-    # Validación de valores
-    if tiempo_final < 0:
-        print("El tiempo final no puede ser negativo.")
-        return
-    if divisiones <= 0:
-        print("La cantidad de divisiones debe ser mayor que cero.")
-        return
-
-    t = calcular_lista_tiempo(tiempo_final, divisiones)
-
-    x = []
-    v = []
-    a = []
-    for ti in t:
-        x.append(calcular_posicion_mru(posicion_inicial, velocidad, ti))
-        v.append(velocidad)
-        a.append(0.0)
-
-    return {
-        "t": t,
-        "x": x,
-        "v": v,
-        "a": a,
-    }
 
 
 # --- FUNCIONES DE MRUV ---
@@ -94,12 +63,10 @@ def calcular_posicion_mruv(
     t: float,
 ) -> float:
     """Calcula la posición para un MRUV en un tiempo t."""
-    return posicion_inicial + velocidad_inicial * t + 0.5 * aceleracion * (t ** 2)
 
 
 def calcular_velocidad_mruv(velocidad_inicial: float, aceleracion: float, t: float) -> float:
     """Calcula la velocidad para un MRUV en un tiempo t."""
-    return velocidad_inicial + aceleracion * t
 
 
 def mruv(
@@ -127,30 +94,6 @@ def mruv(
 
     Valida que el tiempo final sea positivo y que la cantidad de divisiones sea mayor a cero
     """
-    # Validación de valores
-    if tiempo_final < 0:
-        print("El tiempo final no puede ser negativo.")
-        return
-    if divisiones <= 0:
-        print("La cantidad de divisiones debe ser mayor que cero.")
-        return
-
-    t = calcular_lista_tiempo(tiempo_final, divisiones)
-
-    x = []
-    v = []
-    a = []
-    for ti in t:
-        x.append(calcular_posicion_mruv(posicion_inicial, velocidad_inicial, aceleracion, ti))
-        v.append(calcular_velocidad_mruv(velocidad_inicial, aceleracion, ti))
-        a.append(-c.G)
-
-    return {
-        "t": t,
-        "x": x,
-        "v": v,
-        "a": a,
-    }
 
 
 # --- FUNCIONES DE TIRO OBLICUO ---
@@ -165,10 +108,6 @@ def obtener_componentes_velocidad(velocidad_inicial: float, angulo: float) -> tu
     Returns:
         tuple: (v0x, v0y) componentes de la velocidad inicial.
     """
-    theta = math.radians(angulo)
-    v0x = velocidad_inicial * math.cos(theta)
-    v0y = velocidad_inicial * math.sin(theta)
-    return v0x, v0y
 
 
 def calcular_tiempo_vuelo(velocidad_inicial_y: float, altura_inicial: float) -> float:
@@ -181,14 +120,9 @@ def calcular_tiempo_vuelo(velocidad_inicial_y: float, altura_inicial: float) -> 
     Returns:
         float: Tiempo total de vuelo en segundos.
 
-    Valida 
+    Valida que el discriminante de la funcion cuadrática asociada sea positivo
+    (2 Raices Reales Distintas)
     """
-    discriminante = velocidad_inicial_y ** 2 + 2.0 * c.G * altura_inicial
-    if discriminante < 0:
-        print("No se puede calcular el tiempo de vuelo con estos parámetros.")
-        return
-    t_vuelo = (velocidad_inicial_y + math.sqrt(discriminante)) / c.G
-    return t_vuelo
 
 
 def tiro_oblicuo(
@@ -218,40 +152,3 @@ def tiro_oblicuo(
             - 'ax': Lista de aceleración en el eje X (cero).
             - 'ay': Lista de aceleración en el eje Y (-G).
     """
-    # Descomposición de la velocidad inicial
-    v0x, v0y = obtener_componentes_velocidad(velocidad_inicial, angulo)
-
-    # Cálculo del tiempo de vuelo
-    t_vuelo = calcular_tiempo_vuelo(v0y, altura_inicial)
-
-    if t_vuelo <= 0:
-        print("El tiempo de vuelo calculado es cero o negativo. "
-              "Asegúrese de tener una velocidad inicial o altura inicial que permita el vuelo.")
-        return
-
-    # Ejecución del movimiento horizontal (MRU)
-    resultado_x = mru(
-        posicion_inicial=0.0,
-        velocidad=v0x,
-        tiempo_final=t_vuelo,
-        divisiones=divisiones
-    )
-
-    # Ejecución del movimiento vertical (MRUV)
-    resultado_y = mruv(
-        posicion_inicial=altura_inicial,
-        velocidad_inicial=v0y,
-        aceleracion=-c.G,
-        tiempo_final=t_vuelo,
-        divisiones=divisiones
-    )
-
-    return {
-        "t": resultado_x["t"],
-        "x": resultado_x["x"],
-        "y": resultado_y["x"],
-        "vx": resultado_x["v"],
-        "vy": resultado_y["v"],
-        "ax": resultado_x["a"],
-        "ay": resultado_y["a"],
-    }
