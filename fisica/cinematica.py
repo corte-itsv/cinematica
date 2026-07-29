@@ -10,7 +10,8 @@ la cantidad de divisiones y el módulo estándar 'math' para evitar dependencias
 """
 
 #importar librerias necesarias y modulo de constantes !
-
+import math
+import constantes
 
 def calcular_lista_tiempo(tiempo_final: float, divisiones: int) -> list[float]:
     """Genera una lista de tiempos desde 0 hasta tiempo_final dividida en N intervalos.
@@ -22,6 +23,12 @@ def calcular_lista_tiempo(tiempo_final: float, divisiones: int) -> list[float]:
     Returns:
         list[float]: Lista con los instantes de tiempo.
     """
+    lista_tiempos=[]
+    for i in range(divisiones):
+        tiempo_dividido=tiempo_final/divisiones
+        t=tiempo_dividido*(i+1)
+        lista_tiempos.append(t)
+    return lista_tiempos
 
 
 # --- FUNCIONES DE MRU ---
