@@ -12,7 +12,7 @@ la cantidad de divisiones y el módulo estándar 'math' para evitar dependencias
 #importar librerias necesarias y modulo de constantes !
 
 import math
-import constantes
+import fisica.constantes as constantes
 
 def calcular_lista_tiempo(tiempo_final: float, divisiones: int) -> list[float]:
 
@@ -88,6 +88,7 @@ def mru(
 
         x=calcular_posicion_mru(posicion_inicial, velocidad, t)
         dicc_mru["x"].append(x)
+    return dicc_mru
         
             
 
@@ -255,4 +256,5 @@ def tiro_oblicuo(
 
         vy = calcular_velocidad_mruv(velocidad_inicial_y, -(gravedad), tiempo_vuelo)
         dicc_oblicuo['vy'].append(vy)
+    return dicc_oblicuo
         
