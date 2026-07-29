@@ -12,7 +12,7 @@ la cantidad de divisiones y el módulo estándar 'math' para evitar dependencias
 #importar librerias necesarias y modulo de constantes !
 
 
-def calcular_lista_tiempo(tiempo_final: float, divisiones: int) -> List[float]:
+def calcular_lista_tiempo(tiempo_final: float, divisiones: int) -> list[float]:
     """Genera una lista de tiempos desde 0 hasta tiempo_final dividida en N intervalos.
 
     Args:
@@ -20,7 +20,7 @@ def calcular_lista_tiempo(tiempo_final: float, divisiones: int) -> List[float]:
         divisiones (int): Cantidad de divisiones de tiempo.
 
     Returns:
-        List[float]: Lista con los instantes de tiempo.
+        list[float]: Lista con los instantes de tiempo.
     """
 
 
@@ -34,7 +34,7 @@ def mru(
     velocidad: float,
     tiempo_final: float,
     divisiones: int,
-) -> Dict[str, List[float]]:
+) -> dict[str, list[float]]:
     """Calcula la posición, velocidad y aceleración para un MRU.
 
     Args:
@@ -44,7 +44,7 @@ def mru(
         divisiones (int): Cantidad de divisiones de tiempo para la simulación.
 
     Returns:
-        Dict[str, List[float]]: Un diccionario con las siguientes claves:
+        dict[str, list[float]]: Un diccionario con las siguientes claves:
             - 't': Lista de tiempos.
             - 'x': Lista de posiciones en función del tiempo.
             - 'v': Lista de velocidades en función del tiempo.
@@ -75,7 +75,7 @@ def mruv(
     aceleracion: float,
     tiempo_final: float,
     divisiones: int,
-) -> Dict[str, List[float]]:
+) -> dict[str, list[float]]:
     """Calcula la posición, velocidad y aceleración para un MRUV.
 
     Args:
@@ -86,7 +86,7 @@ def mruv(
         divisiones (int): Cantidad de divisiones de tiempo para la simulación.
 
     Returns:
-        Dict[str, List[float]]: Un diccionario con las siguientes claves:
+        dict[str, list[float]]: Un diccionario con las siguientes claves:
             - 't': Lista de tiempos.
             - 'x': Lista de posiciones en función del tiempo.
             - 'v': Lista de velocidades en función del tiempo.
@@ -130,7 +130,7 @@ def tiro_oblicuo(
     angulo: float,
     altura_inicial: float,
     divisiones: int,
-) -> Dict[str, List[float]]:
+) -> dict[str, list[float]]:
     """Calcula las variables de la trayectoria de un tiro oblicuo.
 
     El tiempo de vuelo se calcula automáticamente hasta que la altura vuelve a ser cero.
@@ -143,7 +143,7 @@ def tiro_oblicuo(
         divisiones (int): Cantidad de divisiones de tiempo para la simulación.
 
     Returns:
-        Dict[str, List[float]]: Un diccionario con las siguientes claves:
+        dict[str, list[float]]: Un diccionario con las siguientes claves:
             - 't': Lista de tiempos de vuelo.
             - 'x': Lista de posiciones horizontales.
             - 'y': Lista de posiciones verticales (alturas).
