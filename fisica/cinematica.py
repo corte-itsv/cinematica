@@ -177,8 +177,9 @@ def obtener_componentes_velocidad(velocidad_inicial: float, angulo: float) -> tu
         tuple: (v0x, v0y) componentes de la velocidad inicial.
     """
 
-    v0x = velocidad_inicial * math.cos(angulo)
-    v0y = velocidad_inicial * math.sin(angulo)
+    angulo_rad = math.radians(angulo)
+    v0x = velocidad_inicial * math.cos(angulo_rad)
+    v0y = velocidad_inicial * math.sin(angulo_rad)
     return v0x, v0y
 
 def calcular_tiempo_vuelo(velocidad_inicial_y: float, altura_inicial: float) -> float:
@@ -196,9 +197,8 @@ def calcular_tiempo_vuelo(velocidad_inicial_y: float, altura_inicial: float) -> 
     """
 
     gravedad = constantes.G
-    velocidad_inicial_y = obtener_componentes_velocidad()[1]
 
-    tiempo_vuelo = (velocidad_inicial_y + math.sqrt(math.pow(velocidad_inicial_y, 2) + 2 * gravedad * altura_inicial))/gravedad
+    tiempo_vuelo = (velocidad_inicial_y + math.sqrt(velocidad_inicial_y**2 + 2 * gravedad * altura_inicial)) / gravedad
     return tiempo_vuelo
 
 def tiro_oblicuo(
@@ -229,6 +229,8 @@ def tiro_oblicuo(
             - 'ay': Lista de aceleración en el eje Y (-G).
     """
 
+    velocidad_inicial_x, velocidad_inicial_y = obtener_componentes_velocidad(velocidad_inicial, angulo)
+
     tiempo_vuelo = calcular_tiempo_vuelo(velocidad_inicial_y, altura_inicial)
     lista_tiempos_vuelo = calcular_lista_tiempo(tiempo_vuelo, divisiones)
 
@@ -244,10 +246,10 @@ def tiro_oblicuo(
         'ay': [-(gravedad)]
     }
 
-    velocidad_inicial_x, velocidad_inicial_y = obtener_componentes_velocidad(velocidad_inicial, angulo)[1]
+    velocidad_inicial_x, velocidad_inicial_y = obtener_componentes_velocidad(velocidad_inicial, angulo)
 
     for i in range(divisiones):
-        tiempo_vuelo = lista_tiempos_vuelo[i+1]
+        tiempo_vuelo = lista_tiempos_vuelo[i]
         x = velocidad_inicial_x * tiempo_vuelo
         dicc_oblicuo['x'].append(x)
 
