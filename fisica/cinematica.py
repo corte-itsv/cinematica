@@ -11,6 +11,8 @@ la cantidad de divisiones y el módulo estándar 'math' para evitar dependencias
 
 #importar librerias necesarias y modulo de constantes !
 
+import math
+import constantes
 
 def calcular_lista_tiempo(tiempo_final: float, divisiones: int) -> list[float]:
 
@@ -31,7 +33,7 @@ def calcular_lista_tiempo(tiempo_final: float, divisiones: int) -> list[float]:
         tmp = tiempo_div * (division+1)
         lista_tiempos.append(tmp)
 
-    return lista_tiempos, lista_tiempos[len(lista_tiempos)-1]
+    return lista_tiempos
 
 
 # --- FUNCIONES DE MRU ---
@@ -68,7 +70,7 @@ def mru(
     Valida que el tiempo final sea positivo y que la cantidad de divisiones sea mayor a cero
     """
 
-    lista_tiempos = calcular_lista_tiempo(tiempo_final, divisiones)[0]
+    lista_tiempos = calcular_lista_tiempo(tiempo_final, divisiones)
 
     dicc_mru = {
         "t": [lista_tiempos],
@@ -77,14 +79,15 @@ def mru(
         "a": []
     }
 
-    tiempo = lista_tiempos * range(len(lista_tiempos))
-
     for i in range(divisiones):
-        dicc_mru["x"].append(posicion)
 
-        dicc_mru["v"].append(velocidad)
+        t=lista_tiempos[i]
 
-        dicc_mru["a"].append(aceleracion)
+        v=velocidad
+        dicc_mru["v"].append(v)
+
+        x=calcular_posicion_mru(posicion_inicial, velocidad, t)
+        dicc_mru["x"].append(x)
         
             
 
@@ -92,12 +95,8 @@ def mru(
 
 # --- FUNCIONES DE MRUV ---
 
-def calcular_posicion_mruv(
-    posicion_inicial: float,
-    velocidad_inicial: float,
-    aceleracion: float,
-    t: float,
-) -> float:
+def calcular_posicion_mruv(posicion_inicial: float, velocidad_inicial: float, aceleracion: float, t: float) -> float:
+    
     """Calcula la posición para un MRUV en un tiempo t."""
 
     posicion_final = posicion_inicial + velocidad_inicial * t + 0.5 * aceleracion * t * t
@@ -105,6 +104,9 @@ def calcular_posicion_mruv(
 
 def calcular_velocidad_mruv(velocidad_inicial: float, aceleracion: float, t: float) -> float:
     """Calcula la velocidad para un MRUV en un tiempo t."""
+
+    v = velocidad_inicial + aceleracion * t
+    return v
 
 
 def mruv(
@@ -133,6 +135,33 @@ def mruv(
     Valida que el tiempo final sea positivo y que la cantidad de divisiones sea mayor a cero
     """
 
+    if divisiones > 0 and tiempo_final > 0:
+        lista_tiempos = calcular_lista_tiempo(tiempo_final, divisiones)
+    
+        dicc_mruv = {
+                "t": [lista_tiempos],
+                "x": [],
+                "v": [],
+                "a": []
+            }
+
+        for i in range(divisiones):
+            t=lista_tiempos[i]
+
+            a=aceleracion
+            dicc_mruv["a"].append(a)
+
+            v=calcular_velocidad_mruv(velocidad_inicial, aceleracion, t)
+            dicc_mruv["v"].append(v)
+
+            posicion = calcular_posicion_mruv(posicion_inicial, velocidad_inicial, aceleracion, t)
+            dicc_mruv["x"].append(posicion)
+        return dicc_mruv
+    else:
+        print("Divisiones o número de tiempo inválido.")
+
+    
+
 
 # --- FUNCIONES DE TIRO OBLICUO ---
 
@@ -147,6 +176,9 @@ def obtener_componentes_velocidad(velocidad_inicial: float, angulo: float) -> tu
         tuple: (v0x, v0y) componentes de la velocidad inicial.
     """
 
+    v0x = velocidad_inicial * math.cos(angulo)
+    v0y = velocidad_inicial * math.sin(angulo)
+    return v0x, v0y
 
 def calcular_tiempo_vuelo(velocidad_inicial_y: float, altura_inicial: float) -> float:
     """Calcula el tiempo de vuelo de un tiro oblicuo hasta que vuelve a y = 0.
@@ -162,6 +194,11 @@ def calcular_tiempo_vuelo(velocidad_inicial_y: float, altura_inicial: float) -> 
     (2 Raices Reales Distintas)
     """
 
+    gravedad = constantes.G
+    velocidad_inicial_y = obtener_componentes_velocidad()[1]
+
+    tiempo_vuelo = (velocidad_inicial_y + math.sqrt(math.pow(velocidad_inicial_y, 2) + 2 * gravedad * altura_inicial))/gravedad
+    return tiempo_vuelo
 
 def tiro_oblicuo(
     velocidad_inicial: float,
@@ -190,3 +227,32 @@ def tiro_oblicuo(
             - 'ax': Lista de aceleración en el eje X (cero).
             - 'ay': Lista de aceleración en el eje Y (-G).
     """
+
+    tiempo_vuelo = calcular_tiempo_vuelo(velocidad_inicial_y, altura_inicial)
+    lista_tiempos_vuelo = calcular_lista_tiempo(tiempo_vuelo, divisiones)
+
+    gravedad = constantes.G
+
+    dicc_oblicuo = {
+        't': [lista_tiempos_vuelo],
+        'x': [],
+        'y': [],
+        'vx': [velocidad_inicial_x],
+        'vy': [],
+        'ax': [0],
+        'ay': [-(gravedad)]
+    }
+
+    velocidad_inicial_x, velocidad_inicial_y = obtener_componentes_velocidad(velocidad_inicial, angulo)[1]
+
+    for i in range(divisiones):
+        tiempo_vuelo = lista_tiempos_vuelo[i+1]
+        x = velocidad_inicial_x * tiempo_vuelo
+        dicc_oblicuo['x'].append(x)
+
+        y = calcular_posicion_mruv(altura_inicial, velocidad_inicial_y, -(gravedad), tiempo_vuelo)
+        dicc_oblicuo['y'].append(y)
+
+        vy = calcular_velocidad_mruv(velocidad_inicial_y, -(gravedad), tiempo_vuelo)
+        dicc_oblicuo['vy'].append(vy)
+        
