@@ -10,6 +10,8 @@ la cantidad de divisiones y el módulo estándar 'math' para evitar dependencias
 """
 
 #importar librerias necesarias y modulo de constantes !
+import math
+from .constantes import G
 
 
 def calcular_lista_tiempo(tiempo_final: float, divisiones: int) -> list[float]:
@@ -22,12 +24,21 @@ def calcular_lista_tiempo(tiempo_final: float, divisiones: int) -> list[float]:
     Returns:
         list[float]: Lista con los instantes de tiempo.
     """
+    dt = tiempo_final / divisiones
+
+    tiempos = []
+
+    for i in range(divisiones + 1):
+        tiempos.append(i * dt)
+
+    return tiempos
 
 
 # --- FUNCIONES DE MRU ---
 
 def calcular_posicion_mru(posicion_inicial: float, velocidad: float, t: float) -> float:
     """Calcula la posición para un MRU en un tiempo t."""
+    return posicion_inicial + velocidad * t
 
 def mru(
     posicion_inicial: float,
@@ -52,6 +63,34 @@ def mru(
 
     Valida que el tiempo final sea positivo y que la cantidad de divisiones sea mayor a cero
     """
+    if tiempo_final <= 0:
+        raise ValueError("El tiempo final debe ser mayor a 0.")
+
+    if divisiones <= 0:
+        raise ValueError("La cantidad de divisiones debe ser mayor a 0.")
+
+    tiempos = calcular_lista_tiempo(tiempo_final, divisiones)
+
+    posiciones = []
+    velocidades = []
+    aceleraciones = []
+
+    for t in tiempos:
+
+        posicion = calcular_posicion_mru(posicion_inicial, velocidad, t)
+
+        posiciones.append(posicion)
+        velocidades.append(velocidad)
+        aceleraciones.append(0)
+
+    return {
+        "t": tiempos,
+        "x": posiciones,
+        "v": velocidades,
+        "a": aceleraciones
+    }
+
+
 
 
 # --- FUNCIONES DE MRUV ---
@@ -63,10 +102,12 @@ def calcular_posicion_mruv(
     t: float,
 ) -> float:
     """Calcula la posición para un MRUV en un tiempo t."""
+    return (posicion_inicial + velocidad_inicial * t + 0.5 * aceleracion * t ** 2 )
 
 
 def calcular_velocidad_mruv(velocidad_inicial: float, aceleracion: float, t: float) -> float:
     """Calcula la velocidad para un MRUV en un tiempo t."""
+    return velocidad_inicial + aceleracion * t
 
 
 def mruv(
@@ -94,6 +135,43 @@ def mruv(
 
     Valida que el tiempo final sea positivo y que la cantidad de divisiones sea mayor a cero
     """
+    if tiempo_final <= 0:
+        raise ValueError("El tiempo final debe ser mayor a 0.")
+
+    if divisiones <= 0:
+        raise ValueError("La cantidad de divisiones debe ser mayor a 0.")
+
+    tiempos = calcular_lista_tiempo(tiempo_final, divisiones)
+
+    posiciones = []
+    velocidades = []
+    aceleraciones = []
+
+    for t in tiempos:
+
+        posicion = calcular_posicion_mruv(
+            posicion_inicial,
+            velocidad_inicial,
+            aceleracion,
+            t
+        )
+
+        velocidad = calcular_velocidad_mruv(
+            velocidad_inicial,
+            aceleracion,
+            t
+        )
+
+        posiciones.append(posicion)
+        velocidades.append(velocidad)
+        aceleraciones.append(aceleracion)
+
+    return {
+        "t": tiempos,
+        "x": posiciones,
+        "v": velocidades,
+        "a": aceleraciones
+    }
 
 
 # --- FUNCIONES DE TIRO OBLICUO ---
@@ -108,6 +186,12 @@ def obtener_componentes_velocidad(velocidad_inicial: float, angulo: float) -> tu
     Returns:
         tuple: (v0x, v0y) componentes de la velocidad inicial.
     """
+    angulo = math.radians(angulo)
+
+    v0x = velocidad_inicial * math.cos(angulo)
+    v0y = velocidad_inicial * math.sin(angulo)
+
+    return v0x, v0y
 
 
 def calcular_tiempo_vuelo(velocidad_inicial_y: float, altura_inicial: float) -> float:
@@ -123,7 +207,20 @@ def calcular_tiempo_vuelo(velocidad_inicial_y: float, altura_inicial: float) -> 
     Valida que el discriminante de la funcion cuadrática asociada sea positivo
     (2 Raices Reales Distintas)
     """
+    a = -0.5 * G
+    b = velocidad_inicial_y
+    c = altura_inicial
 
+    delta = b ** 2 - 4 * a * c
+
+    if delta < 0:
+        raise ValueError("El discriminante es negativo.")
+
+    t1 = (-b + math.sqrt(delta)) / (2 * a)
+    t2 = (-b - math.sqrt(delta)) / (2 * a)
+
+    return max(t1, t2)
+    
 
 def tiro_oblicuo(
     velocidad_inicial: float,
@@ -152,3 +249,67 @@ def tiro_oblicuo(
             - 'ax': Lista de aceleración en el eje X (cero).
             - 'ay': Lista de aceleración en el eje Y (-G).
     """
+    if divisiones <= 0:
+        raise ValueError("La cantidad de divisiones debe ser mayor a 0.")
+
+    v0x, v0y = obtener_componentes_velocidad(
+        velocidad_inicial,
+        angulo
+    )
+
+    tiempo_final = calcular_tiempo_vuelo(
+        v0y,
+        altura_inicial
+    )
+
+    tiempos = calcular_lista_tiempo(
+        tiempo_final,
+        divisiones
+    )
+
+    posiciones_x = []
+    posiciones_y = []
+    velocidades_x = []
+    velocidades_y = []
+    aceleraciones_x = []
+    aceleraciones_y = []
+
+    for t in tiempos:
+
+        x = calcular_posicion_mru(
+            0,
+            v0x,
+            t
+        )
+
+        y = calcular_posicion_mruv(
+            altura_inicial,
+            v0y,
+            -G,
+            t
+        )
+
+        vy = calcular_velocidad_mruv(
+            v0y,
+            -G,
+            t
+        )
+
+        posiciones_x.append(x)
+        posiciones_y.append(y)
+
+        velocidades_x.append(v0x)
+        velocidades_y.append(vy)
+
+        aceleraciones_x.append(0)
+        aceleraciones_y.append(-G)
+
+    return {
+        "t": tiempos,
+        "x": posiciones_x,
+        "y": posiciones_y,
+        "vx": velocidades_x,
+        "vy": velocidades_y,
+        "ax": aceleraciones_x,
+        "ay": aceleraciones_y,
+    }
