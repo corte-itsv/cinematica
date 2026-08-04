@@ -23,12 +23,14 @@ def calcular_lista_tiempo(tiempo_final: float, divisiones: int) -> list[float]:
     Returns:
         list[float]: Lista con los instantes de tiempo.
     """
-    lista_tiempos=[]
-    for i in range(divisiones):
-        tiempo_dividido=tiempo_final/divisiones
-        t=tiempo_dividido*(i+1)
-        lista_tiempos.append(t)
-    return lista_tiempos
+    if divisiones <= 0:
+        return [0.0]
+
+    if tiempo_final == 0:
+        return [0.0] * (divisiones + 1)
+
+    paso = tiempo_final / divisiones
+    return [paso * i for i in range(divisiones + 1)]
 
 
 # --- FUNCIONES DE MRU ---
@@ -61,21 +63,27 @@ def mru(
 
     Valida que el tiempo final sea positivo y que la cantidad de divisiones sea mayor a cero
     """
-    lista_tiempos=calcular_lista_tiempo(tiempo_final, divisiones)
-    diccionario_mru={"t":[lista_tiempos], 
-                     "x":[],
-                     "v":[],
-                     "a":[]}
+    if tiempo_final < 0 or divisiones <= 0:
+        return None
 
-    for i in range(divisiones):
-        t=lista_tiempos[i]
-        v=velocidad
+    lista_tiempos = calcular_lista_tiempo(tiempo_final, divisiones)
+    diccionario_mru = {
+        "t": lista_tiempos,
+        "x": [],
+        "v": [],
+        "a": [],
+    }
+
+    for t in lista_tiempos:
+        v = velocidad
         diccionario_mru["v"].append(v)
-        
-        x=calcular_posicion_mru(posicion_inicial,v,t)
+
+        x = calcular_posicion_mru(posicion_inicial, v, t)
         diccionario_mru["x"].append(x)
-        a=0
+
+        a = 0.0
         diccionario_mru["a"].append(a)
+
     return diccionario_mru
         
         
@@ -126,21 +134,28 @@ def mruv(
 
     Valida que el tiempo final sea positivo y que la cantidad de divisiones sea mayor a cero
     """
-    if divisiones > 0 and tiempo_final > 0:
-        lista_tiempos=calcular_lista_tiempo(tiempo_final, divisiones)
-        diccionario_mruv={"t":[lista_tiempos], 
-                         "x":[],
-                         "v":[],
-                         "a":[]}
-        for i in range (divisiones):
-            t=lista_tiempos[i]
-            a=aceleracion
-            diccionario_mruv["a"].append(a)
-            v=calcular_velocidad_mruv(velocidad_inicial, aceleracion, t)
-            diccionario_mruv["v"].append(v)
-            x=calcular_posicion_mruv(posicion_inicial, velocidad_inicial, aceleracion, t )
-            diccionario_mruv["x"].append(x)
-        return diccionario_mruv
+    if tiempo_final <= 0 or divisiones <= 0:
+        return None
+
+    lista_tiempos = calcular_lista_tiempo(tiempo_final, divisiones)
+    diccionario_mruv = {
+        "t": lista_tiempos,
+        "x": [],
+        "v": [],
+        "a": [],
+    }
+
+    for t in lista_tiempos:
+        a = -constantes.G
+        diccionario_mruv["a"].append(a)
+
+        v = calcular_velocidad_mruv(velocidad_inicial, aceleracion, t)
+        diccionario_mruv["v"].append(v)
+
+        x = calcular_posicion_mruv(posicion_inicial, velocidad_inicial, aceleracion, t)
+        diccionario_mruv["x"].append(x)
+
+    return diccionario_mruv
         
 
 
@@ -179,7 +194,14 @@ def calcular_tiempo_vuelo(velocidad_inicial_y: float, altura_inicial: float) -> 
     """
     
     discriminante = pow(velocidad_inicial_y, 2) + 2 * constantes.G * altura_inicial
+
+    if discriminante < 0:
+        return None
+
     t_vuelo = (velocidad_inicial_y + math.sqrt(discriminante)) / constantes.G
+    if t_vuelo <= 0:
+        return None
+
     return t_vuelo
 
 def tiro_oblicuo(
@@ -209,9 +231,15 @@ def tiro_oblicuo(
             - 'ax': Lista de aceleración en el eje X (cero).
             - 'ay': Lista de aceleración en el eje Y (-G).
     """
+    if divisiones <= 0:
+        return None
+
     velocidad_inicial_x, velocidad_inicial_y = obtener_componentes_velocidad(velocidad_inicial, angulo)
 
     tiempo_final_vuelo = calcular_tiempo_vuelo(velocidad_inicial_y, altura_inicial)
+    if tiempo_final_vuelo is None:
+        return None
+
     lista_tiempos = calcular_lista_tiempo(tiempo_final_vuelo, divisiones)
 
     diccionario_tiro_oblicuo = {
