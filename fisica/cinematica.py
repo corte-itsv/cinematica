@@ -22,12 +22,25 @@ def calcular_lista_tiempo(tiempo_final: float, divisiones: int) -> list[float]:
     Returns:
         list[float]: Lista con los instantes de tiempo.
     """
+    paso = tiempo_final / divisiones
+
+    lista_tiempo = []
+
+    for i in range(divisiones + 1):
+        tiempo = i * paso
+        lista_tiempo.append(tiempo)
+
+    return lista_tiempo
 
 
 # --- FUNCIONES DE MRU ---
 
 def calcular_posicion_mru(posicion_inicial: float, velocidad: float, t: float) -> float:
     """Calcula la posición para un MRU en un tiempo t."""
+
+    posicion_final = posicion_inicial + velocidad * t
+
+    return posicion_final
 
 def mru(
     posicion_inicial: float,
