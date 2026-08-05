@@ -10,7 +10,8 @@ la cantidad de divisiones y el módulo estándar 'math' para evitar dependencias
 """
 
 #importar librerias necesarias y modulo de constantes !
-
+import math
+G = 9.81
 
 def calcular_lista_tiempo(tiempo_final: float, divisiones: int) -> list[float]:
     """Genera una lista de tiempos desde 0 hasta tiempo_final dividida en N intervalos.
@@ -23,24 +24,19 @@ def calcular_lista_tiempo(tiempo_final: float, divisiones: int) -> list[float]:
         list[float]: Lista con los instantes de tiempo.
     """
     paso = tiempo_final / divisiones
-
-    lista_tiempo = []
+    tiempos = []
 
     for i in range(divisiones + 1):
-        tiempo = i * paso
-        lista_tiempo.append(tiempo)
+        tiempos.append(i * paso)
 
-    return lista_tiempo
+    return tiempos
 
 
 # --- FUNCIONES DE MRU ---
 
 def calcular_posicion_mru(posicion_inicial: float, velocidad: float, t: float) -> float:
     """Calcula la posición para un MRU en un tiempo t."""
-
-    posicion_final = posicion_inicial + velocidad * t
-
-    return posicion_final
+    return posicion_inicial + velocidad * t
 
 def mru(
     posicion_inicial: float,
@@ -65,7 +61,26 @@ def mru(
 
     Valida que el tiempo final sea positivo y que la cantidad de divisiones sea mayor a cero
     """
+    if tiempo_final <= 0 or divisiones <= 0:
+        raise ValueError("Tiempo final y divisiones deben ser mayores que cero.")
 
+    tiempos = calcular_lista_tiempo(tiempo_final, divisiones)
+
+    posiciones = []
+    velocidades = []
+    aceleraciones = []
+
+    for t in tiempos:
+        posiciones.append(calcular_posicion_mru(posicion_inicial, velocidad, t))
+        velocidades.append(velocidad)
+        aceleraciones.append(0)
+
+    return {
+        "t": tiempos,
+        "x": posiciones,
+        "v": velocidades,
+        "a": aceleraciones,
+    }
 
 # --- FUNCIONES DE MRUV ---
 
