@@ -23,6 +23,15 @@ def calcular_lista_tiempo(tiempo_final: float, divisiones: int) -> list[float]:
         list[float]: Lista con los instantes de tiempo.
     """
 
+    tiempos = []
+    paso = tiempo_final / divisiones
+
+    for n in range(0,divisiones):
+        resultado = n *paso
+        tiempos.append(resultado)
+    return tiempos
+        
+
 
 # --- FUNCIONES DE MRU ---
 
