@@ -171,6 +171,11 @@ def obtener_componentes_velocidad(velocidad_inicial: float, angulo: float) -> tu
     Returns:
         tuple: (v0x, v0y) componentes de la velocidad inicial.
     """
+    angulo_rad = math.radians(angulo)
+    v0x = velocidad_inicial * math.cos(angulo_rad)
+    v0y = velocidad_inicial * math.sin(angulo_rad)
+
+    return v0x, v0y
 
 
 def calcular_tiempo_vuelo(velocidad_inicial_y: float, altura_inicial: float) -> float:
@@ -186,6 +191,12 @@ def calcular_tiempo_vuelo(velocidad_inicial_y: float, altura_inicial: float) -> 
     Valida que el discriminante de la funcion cuadrática asociada sea positivo
     (2 Raices Reales Distintas)
     """
+    discriminante = velocidad_inicial_y**2 + 2 * G * altura_inicial
+
+    if discriminante < 0:
+        raise ValueError("El discriminante debe ser positivo.")
+
+    return (velocidad_inicial_y + math.sqrt(discriminante)) / G
 
 
 def tiro_oblicuo(
@@ -215,3 +226,35 @@ def tiro_oblicuo(
             - 'ax': Lista de aceleración en el eje X (cero).
             - 'ay': Lista de aceleración en el eje Y (-G).
     """
+    if divisiones <= 0:
+        raise ValueError("Las divisiones deben ser mayores que cero.")
+
+    vx, vy0 = obtener_componentes_velocidad(velocidad_inicial, angulo)
+
+    tiempo_vuelo = calcular_tiempo_vuelo(vy0, altura_inicial)
+    tiempos = calcular_lista_tiempo(tiempo_vuelo, divisiones)
+
+    posiciones_x = []
+    posiciones_y = []
+    velocidades_x = []
+    velocidades_y = []
+    aceleraciones_x = []
+    aceleraciones_y = []
+
+    for t in tiempos:
+        posiciones_x.append(calcular_posicion_mru(0, vx, t))
+        posiciones_y.append(calcular_posicion_mruv(altura_inicial, vy0, -G, t))
+        velocidades_x.append(vx)
+        velocidades_y.append(calcular_velocidad_mruv(vy0, -G, t))
+        aceleraciones_x.append(0)
+        aceleraciones_y.append(-G)
+
+    return {
+        "t": tiempos,
+        "x": posiciones_x,
+        "y": posiciones_y,
+        "vx": velocidades_x,
+        "vy": velocidades_y,
+        "ax": aceleraciones_x,
+        "ay": aceleraciones_y,
+    }
