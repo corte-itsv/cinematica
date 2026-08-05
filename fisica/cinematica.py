@@ -26,7 +26,7 @@ def calcular_lista_tiempo(tiempo_final: float, divisiones: int) -> list[float]:
     tiempos = []
     paso = tiempo_final / divisiones
 
-    for n in range(0,divisiones):
+    for n in range(divisiones + 1):
         resultado = n *paso
         tiempos.append(resultado)
     return tiempos
@@ -37,6 +37,11 @@ def calcular_lista_tiempo(tiempo_final: float, divisiones: int) -> list[float]:
 
 def calcular_posicion_mru(posicion_inicial: float, velocidad: float, t: float) -> float:
     """Calcula la posición para un MRU en un tiempo t."""
+
+    posicion = posicion_inicial + velocidad * t
+    return posicion
+
+
 
 def mru(
     posicion_inicial: float,
@@ -62,6 +67,35 @@ def mru(
     Valida que el tiempo final sea positivo y que la cantidad de divisiones sea mayor a cero
     """
 
+    if tiempo_final <= 0:
+        raise ValueError("El tiempo final debe ser mayor que cero.")
+
+    if divisiones <= 0:
+        raise ValueError("La cantidad de divisiones debe ser mayor que cero.")
+
+
+    tiempos = calcular_lista_tiempo(tiempo_final, divisiones)
+
+
+    posiciones = []
+    velocidades = []
+    aceleraciones = []
+
+    for t in tiempos:
+        posicion = calcular_posicion_mru(posicion_inicial, velocidad, t)
+        posiciones.append(posicion)
+        velocidades.append(velocidad)
+        aceleraciones.append(0)
+
+    return {
+        "t": tiempos,
+        "x": posiciones,
+        "v": velocidades,
+        "a": aceleraciones,
+    }
+
+
+
 
 # --- FUNCIONES DE MRUV ---
 
@@ -73,9 +107,14 @@ def calcular_posicion_mruv(
 ) -> float:
     """Calcula la posición para un MRUV en un tiempo t."""
 
+    posicion = posicion_inicial + velocidad_inicial * t + 0.5 * aceleracion * t**2
+    return posicion
+
 
 def calcular_velocidad_mruv(velocidad_inicial: float, aceleracion: float, t: float) -> float:
     """Calcula la velocidad para un MRUV en un tiempo t."""
+    velocidad = velocidad_inicial + aceleracion * t
+    return velocidad
 
 
 def mruv(
