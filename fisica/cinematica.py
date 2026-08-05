@@ -21,7 +21,7 @@ def calcular_lista_tiempo(tiempo_final: float, divisiones: int) -> list[float]:
         raise ValueError('El tiempo tiene que ser mayor que 0')
 
     if divisiones <= 0:
-            raise ValueError('El tiempo tiene que ser mayor que 0')
+            raise ValueError('Las divisiones deben ser mayor que 0')
 
     lista_tiempo = tiempo_final / divisiones
     return [num * lista_tiempo for num in range(divisiones + 1 )]
