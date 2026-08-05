@@ -146,7 +146,7 @@ def mruv(
     }
 
     for t in lista_tiempos:
-        a = -constantes.G
+        a = aceleracion
         diccionario_mruv["a"].append(a)
 
         v = calcular_velocidad_mruv(velocidad_inicial, aceleracion, t)
