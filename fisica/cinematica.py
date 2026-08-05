@@ -152,3 +152,4 @@ def tiro_oblicuo(
             - 'ax': Lista de aceleración en el eje X (cero).
             - 'ay': Lista de aceleración en el eje Y (-G).
     """
+
