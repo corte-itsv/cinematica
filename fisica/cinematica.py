@@ -23,7 +23,7 @@ def calcular_lista_tiempo(tiempo_final: float, divisiones: int) -> list[float]:
     Returns:
         list[float]: Lista con los instantes de tiempo.
     """
-    lista_tiempos=[]
+    lista_tiempos=[0]
     for i in range(divisiones):
         tiempo_dividido=tiempo_final/divisiones
         t=tiempo_dividido*(i+1)
@@ -35,6 +35,8 @@ def calcular_lista_tiempo(tiempo_final: float, divisiones: int) -> list[float]:
 
 def calcular_posicion_mru(posicion_inicial: float, velocidad: float, t: float) -> float:
     """Calcula la posición para un MRU en un tiempo t."""
+    posicion=posicion_inicial+velocidad*t
+    return posicion
 
 def mru(
     posicion_inicial: float,
@@ -43,7 +45,7 @@ def mru(
     divisiones: int,
 ) -> dict[str, list[float]]:
     """Calcula la posición, velocidad y aceleración para un MRU.
-
+    
     Args:
         posicion_inicial (float): Posición inicial del móvil (en metros).
         velocidad (float): Velocidad constante del móvil (en m/s).
@@ -59,6 +61,21 @@ def mru(
 
     Valida que el tiempo final sea positivo y que la cantidad de divisiones sea mayor a cero
     """
+    lista_tiempos=calcular_lista_tiempo(tiempo_final, divisiones)
+    diccionario_mru={"t":[lista_tiempos], 
+                     "x":[],
+                     "v":[],
+                     "a":[]}
+
+    for i in range(divisiones):
+        t=lista_tiempos[i]
+        v=velocidad
+        diccionario_mru["v"].append(v)
+
+        x=calcular_posicion_mru(posicion_inicial,v,t)
+        diccionario_mru["x"].append(x)
+
+
 
 
 # --- FUNCIONES DE MRUV ---
@@ -114,6 +131,7 @@ def obtener_componentes_velocidad(velocidad_inicial: float, angulo: float) -> tu
 
     Returns:
         tuple: (v0x, v0y) componentes de la velocidad inicial.
+    
     """
 
 
@@ -130,7 +148,6 @@ def calcular_tiempo_vuelo(velocidad_inicial_y: float, altura_inicial: float) -> 
     Valida que el discriminante de la funcion cuadrática asociada sea positivo
     (2 Raices Reales Distintas)
     """
-
 
 def tiro_oblicuo(
     velocidad_inicial: float,
