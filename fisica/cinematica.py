@@ -87,10 +87,15 @@ def calcular_posicion_mruv(
     t: float,
 ) -> float:
     """Calcula la posición para un MRUV en un tiempo t."""
+    posicion=posicion_inicial+velocidad_inicial*t+0.5*aceleracion*t*t
+    return posicion
 
 
 def calcular_velocidad_mruv(velocidad_inicial: float, aceleracion: float, t: float) -> float:
     """Calcula la velocidad para un MRUV en un tiempo t."""
+    velocidad=velocidad_inicial+aceleracion*t
+    return velocidad
+
 
 
 def mruv(
@@ -118,6 +123,20 @@ def mruv(
 
     Valida que el tiempo final sea positivo y que la cantidad de divisiones sea mayor a cero
     """
+    lista_tiempos=calcular_lista_tiempo(tiempo_final, divisiones)
+    diccionario_mruv={"t":[lista_tiempos], 
+                         "x":[],
+                         "v":[],
+                         "a":[aceleracion]}
+    for i in range (divisiones):
+        t=lista_tiempos[i]
+        v=calcular_velocidad_mruv(velocidad_inicial, aceleracion, t)
+        diccionario_mruv["v"].append(v)
+        x=calcular_posicion_mruv(posicion_inicial, velocidad_inicial, aceleracion, t )
+        diccionario_mruv["x"].append(x)
+
+
+
 
 
 # --- FUNCIONES DE TIRO OBLICUO ---
