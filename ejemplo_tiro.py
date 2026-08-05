@@ -11,4 +11,4 @@ import fisica
 
 resultado = fisica.cinematica.tiro_oblicuo(10, 10, 10, 10)
 
-print(resultado)
+graficar_tiro_oblicuo(resultado)

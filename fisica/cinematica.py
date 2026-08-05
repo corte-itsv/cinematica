@@ -29,6 +29,9 @@ def calcular_lista_tiempo(tiempo_final: float, divisiones: int) -> list[float]:
     lista_tiempos = []
     tiempo_div = tiempo_final / divisiones
 
+    lista_tiempos.append(0)
+
+
     for division in range(divisiones): 
         tmp = tiempo_div * (division+1)
         lista_tiempos.append(tmp)
@@ -51,43 +54,26 @@ def mru(
     tiempo_final: float,
     divisiones: int,
 ) -> dict[str, list[float]]:
+    """Calcula la posición, velocidad y aceleración para un MRU."""
 
-    """Calcula la posición, velocidad y aceleración para un MRU.
-
-    Args:
-        posicion_inicial (float): Posición inicial del móvil (en metros).
-        velocidad (float): Velocidad constante del móvil (en m/s).
-        tiempo_final (float): Tiempo de finalización del movimiento (en segundos).
-        divisiones (int): Cantidad de divisiones de tiempo para la simulación.
-
-    Returns:
-        dict[str, list[float]]: Un diccionario con las siguientes claves:
-            - 't': Lista de tiempos.
-            - 'x': Lista de posiciones en función del tiempo.
-            - 'v': Lista de velocidades en función del tiempo.
-            - 'a': Lista de aceleraciones en función del tiempo.
-
-    Valida que el tiempo final sea positivo y que la cantidad de divisiones sea mayor a cero
-    """
+    if tiempo_final <= 0 or divisiones <= 0:
+        print("Divisiones o número de tiempo inválido.")
+        return None
 
     lista_tiempos = calcular_lista_tiempo(tiempo_final, divisiones)
 
     dicc_mru = {
-        "t": [lista_tiempos],
+        "t": lista_tiempos,
         "x": [],
         "v": [],
         "a": []
     }
 
-    for i in range(divisiones):
+    for t in lista_tiempos:
+        dicc_mru["v"].append(velocidad)
+        dicc_mru["a"].append(0.0)
+        dicc_mru["x"].append(calcular_posicion_mru(posicion_inicial, velocidad, t))
 
-        t=lista_tiempos[i]
-
-        v=velocidad
-        dicc_mru["v"].append(v)
-
-        x=calcular_posicion_mru(posicion_inicial, velocidad, t)
-        dicc_mru["x"].append(x)
     return dicc_mru
         
             
@@ -117,49 +103,31 @@ def mruv(
     tiempo_final: float,
     divisiones: int,
 ) -> dict[str, list[float]]:
-    """Calcula la posición, velocidad y aceleración para un MRUV.
-
-    Args:
-        posicion_inicial (float): Posición inicial del móvil (en metros).
-        velocidad_inicial (float): Velocidad inicial del móvil (en m/s).
-        aceleracion (float): Aceleración constante del móvil (en m/s^2).
-        tiempo_final (float): Tiempo de finalización del movimiento (en segundos).
-        divisiones (int): Cantidad de divisiones de tiempo para la simulación.
-
-    Returns:
-        dict[str, list[float]]: Un diccionario con las siguientes claves:
-            - 't': Lista de tiempos.
-            - 'x': Lista de posiciones en función del tiempo.
-            - 'v': Lista de velocidades en función del tiempo.
-            - 'a': Lista de aceleraciones en función del tiempo.
-
-    Valida que el tiempo final sea positivo y que la cantidad de divisiones sea mayor a cero
-    """
-
-    if divisiones > 0 and tiempo_final > 0:
-        lista_tiempos = calcular_lista_tiempo(tiempo_final, divisiones)
-    
-        dicc_mruv = {
-                "t": [lista_tiempos],
-                "x": [],
-                "v": [],
-                "a": []
-            }
-
-        for i in range(divisiones):
-            t=lista_tiempos[i]
-
-            a=aceleracion
-            dicc_mruv["a"].append(a)
-
-            v=calcular_velocidad_mruv(velocidad_inicial, aceleracion, t)
-            dicc_mruv["v"].append(v)
-
-            posicion = calcular_posicion_mruv(posicion_inicial, velocidad_inicial, aceleracion, t)
-            dicc_mruv["x"].append(posicion)
-        return dicc_mruv
-    else:
+    """Calcula la posición, velocidad y aceleración para un MRUV."""
+    if tiempo_final <= 0 or divisiones <= 0:
         print("Divisiones o número de tiempo inválido.")
+        return None
+
+    lista_tiempos = calcular_lista_tiempo(tiempo_final, divisiones)
+
+    dicc_mruv = {
+        "t": lista_tiempos,
+        "x": [],
+        "v": [],
+        "a": []
+    }
+
+
+    for t in lista_tiempos:
+        dicc_mruv["a"].append(aceleracion)
+        
+        v = calcular_velocidad_mruv(velocidad_inicial, aceleracion, t)
+        dicc_mruv["v"].append(v)
+
+        posicion = calcular_posicion_mruv(posicion_inicial, velocidad_inicial, aceleracion, t)
+        dicc_mruv["x"].append(posicion)
+
+    return dicc_mruv
 
     
 
@@ -196,9 +164,17 @@ def calcular_tiempo_vuelo(velocidad_inicial_y: float, altura_inicial: float) -> 
     (2 Raices Reales Distintas)
     """
 
+    
+
     gravedad = constantes.G
 
-    tiempo_vuelo = (velocidad_inicial_y + math.sqrt(velocidad_inicial_y**2 + 2 * gravedad * altura_inicial)) / gravedad
+    g = abs(gravedad) 
+    discriminante = velocidad_inicial_y**2 + 2 * g * altura_inicial
+
+    if discriminante < 0:
+            return None
+
+    tiempo_vuelo = (velocidad_inicial_y + math.sqrt(max(0.0, discriminante))) / g
     return tiempo_vuelo
 
 def tiro_oblicuo(
@@ -207,56 +183,39 @@ def tiro_oblicuo(
     altura_inicial: float,
     divisiones: int,
 ) -> dict[str, list[float]]:
-    """Calcula las variables de la trayectoria de un tiro oblicuo.
-
-    El tiempo de vuelo se calcula automáticamente hasta que la altura vuelve a ser cero.
-    El movimiento se modela como la composición de un MRU (eje X) y un MRUV (eje Y).
-
-    Args:
-        velocidad_inicial (float): Magnitud de la velocidad inicial (en m/s).
-        angulo (float): Ángulo de disparo respecto a la horizontal (en grados).
-        altura_inicial (float): Altura inicial desde la que se lanza el proyectil (en metros).
-        divisiones (int): Cantidad de divisiones de tiempo para la simulación.
-
-    Returns:
-        dict[str, list[float]]: Un diccionario con las siguientes claves:
-            - 't': Lista de tiempos de vuelo.
-            - 'x': Lista de posiciones horizontales.
-            - 'y': Lista de posiciones verticales (alturas).
-            - 'vx': Lista de velocidad en el eje X (constante).
-            - 'vy': Lista de velocidad en el eje Y.
-            - 'ax': Lista de aceleración en el eje X (cero).
-            - 'ay': Lista de aceleración en el eje Y (-G).
-    """
+    """Calcula las variables de la trayectoria de un tiro oblicuo."""
+    if divisiones <= 0:
+        print("Divisiones o número de tiempo inválido.")
+        return None
 
     velocidad_inicial_x, velocidad_inicial_y = obtener_componentes_velocidad(velocidad_inicial, angulo)
-
     tiempo_vuelo = calcular_tiempo_vuelo(velocidad_inicial_y, altura_inicial)
-    lista_tiempos_vuelo = calcular_lista_tiempo(tiempo_vuelo, divisiones)
 
-    gravedad = constantes.G
+    if tiempo_vuelo is None or tiempo_vuelo <= 0:
+        print("Divisiones o número de tiempo inválido.")
+        return None
+
+    lista_tiempos_vuelo = calcular_lista_tiempo(tiempo_vuelo, divisiones)
+    gravedad = abs(constantes.G)
 
     dicc_oblicuo = {
-        't': [lista_tiempos_vuelo],
+        't': lista_tiempos_vuelo,
         'x': [],
         'y': [],
-        'vx': [velocidad_inicial_x],
+        'vx': [],
         'vy': [],
-        'ax': [0],
-        'ay': [-(gravedad)]
+        'ax': [],
+        'ay': []
     }
 
-    velocidad_inicial_x, velocidad_inicial_y = obtener_componentes_velocidad(velocidad_inicial, angulo)
+    # Iterar directamente sobre lista_tiempos_vuelo procesa los 11 elementos
+    for t in lista_tiempos_vuelo:
+        dicc_oblicuo['x'].append(velocidad_inicial_x * t)
+        dicc_oblicuo['y'].append(calcular_posicion_mruv(altura_inicial, velocidad_inicial_y, -gravedad, t))
+        dicc_oblicuo['vx'].append(velocidad_inicial_x)
+        dicc_oblicuo['vy'].append(calcular_velocidad_mruv(velocidad_inicial_y, -gravedad, t))
+        dicc_oblicuo['ax'].append(0.0)
+        dicc_oblicuo['ay'].append(-gravedad)
 
-    for i in range(divisiones):
-        tiempo_vuelo = lista_tiempos_vuelo[i]
-        x = velocidad_inicial_x * tiempo_vuelo
-        dicc_oblicuo['x'].append(x)
-
-        y = calcular_posicion_mruv(altura_inicial, velocidad_inicial_y, -(gravedad), tiempo_vuelo)
-        dicc_oblicuo['y'].append(y)
-
-        vy = calcular_velocidad_mruv(velocidad_inicial_y, -(gravedad), tiempo_vuelo)
-        dicc_oblicuo['vy'].append(vy)
     return dicc_oblicuo
         
