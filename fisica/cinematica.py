@@ -75,5 +75,64 @@ def mru(
         diccionario_mru["x"].append(x)
         
 
+# --- FUNCIONES DE MRUV ---
+
+
+def calcular_posicion_mruv(
+    posicion_inicial: float,
+    velocidad_inicial: float,
+    aceleracion: float,
+    t: float,
+) -> float:
+    """Calcula la posición para un MRUV en un tiempo t."""
+    posicion=posicion_inicial+velocidad_inicial*t+0.5*aceleracion*t*t
+    return posicion
+
+
+def calcular_velocidad_mruv(velocidad_inicial: float, aceleracion: float, t: float) -> float:
+    """Calcula la velocidad para un MRUV en un tiempo t."""
+    velocidad=velocidad_inicial+aceleracion*t
+    return velocidad
+
+
+def mruv(
+    posicion_inicial: float,
+    velocidad_inicial: float,
+    aceleracion: float,
+    tiempo_final: float,
+    divisiones: int,
+) -> dict[str, list[float]]:
+    """Calcula la posición, velocidad y aceleración para un MRUV.
+
+
+    Args:
+        posicion_inicial (float): Posición inicial del móvil (en metros).
+        velocidad_inicial (float): Velocidad inicial del móvil (en m/s).
+        aceleracion (float): Aceleración constante del móvil (en m/s^2).
+        tiempo_final (float): Tiempo de finalización del movimiento (en segundos).
+        divisiones (int): Cantidad de divisiones de tiempo para la simulación.
+
+
+    Returns:
+        dict[str, list[float]]: Un diccionario con las siguientes claves:
+            - 't': Lista de tiempos.
+            - 'x': Lista de posiciones en función del tiempo.
+            - 'v': Lista de velocidades en función del tiempo.
+            - 'a': Lista de aceleraciones en función del tiempo.
+
+
+    Valida que el tiempo final sea positivo y que la cantidad de divisiones sea mayor a cero
+    """
+    lista_tiempos=calcular_lista_tiempo(tiempo_final, divisiones)
+    diccionario_mruv={"t":[lista_tiempos],
+                         "x":[],
+                         "v":[],
+                         "a":[aceleracion]}
+    for i in range (divisiones):
+        t=lista_tiempos[i]
+        v=calcular_velocidad_mruv(velocidad_inicial, aceleracion, t)
+        diccionario_mruv["v"].append(v)
+        x=calcular_posicion_mruv(posicion_inicial, velocidad_inicial, aceleracion, t )
+        diccionario_mruv["x"].append(x)
 
 
