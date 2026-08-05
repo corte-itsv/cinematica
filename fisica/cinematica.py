@@ -130,10 +130,13 @@ def mruv(
                          "a":[aceleracion]}
     for i in range (divisiones):
         t=lista_tiempos[i]
+        a=aceleracion
+        diccionario_mruv["a"].append(a)
         v=calcular_velocidad_mruv(velocidad_inicial, aceleracion, t)
         diccionario_mruv["v"].append(v)
         x=calcular_posicion_mruv(posicion_inicial, velocidad_inicial, aceleracion, t )
         diccionario_mruv["x"].append(x)
+        return diccionario_mruv
 
 
 
@@ -152,6 +155,10 @@ def obtener_componentes_velocidad(velocidad_inicial: float, angulo: float) -> tu
         tuple: (v0x, v0y) componentes de la velocidad inicial.
     
     """
+#como la velocidad en x es constante (mru) se puede decir q siempre es igual a velocidad inicial
+    v0x=velocidad_inicial*math.cos(angulo)
+    v0y=velocidad_inicial*math.sin(angulo)
+    return v0x, v0y
 
 
 def calcular_tiempo_vuelo(velocidad_inicial_y: float, altura_inicial: float) -> float:
@@ -167,6 +174,11 @@ def calcular_tiempo_vuelo(velocidad_inicial_y: float, altura_inicial: float) -> 
     Valida que el discriminante de la funcion cuadrática asociada sea positivo
     (2 Raices Reales Distintas)
     """
+
+    velocidad_inicial_y=obtener_componentes_velocidad()[1]
+    t_vuelo=(velocidad_inicial_y+math.sqrt(pow(velocidad_inicial_y,2)+2*constantes.G*altura_inicial))/constantes.G
+    return t_vuelo
+
 
 def tiro_oblicuo(
     velocidad_inicial: float,
@@ -195,3 +207,33 @@ def tiro_oblicuo(
             - 'ax': Lista de aceleración en el eje X (cero).
             - 'ay': Lista de aceleración en el eje Y (-G).
     """
+    velocidad_inicial_x, velocidad_inicial_y = obtener_componentes_velocidad(velocidad_inicial, angulo)
+
+    tiempo_final_vuelo=calcular_tiempo_vuelo(velocidad_inicial_y, altura_inicial)
+    lista_tiempos=calcular_lista_tiempo(tiempo_final_vuelo, divisiones)
+
+    diccionario_tiro_oblicuo={
+        't': [lista_tiempos],
+        'x': [],
+        'y': [],
+        'vx': [],
+        'vy': [],
+        'ax': [],
+        'ay': [],
+    }
+    tiempo_dividido=tiempo_final_vuelo/divisiones
+    for i in range(divisiones):
+        t=lista_tiempos[i]
+        x=velocidad_inicial_x*t
+        diccionario_tiro_oblicuo['x'].append(x)
+        y=altura_inicial+velocidad_inicial_y*t-0.5*constantes.G*t*t
+        diccionario_tiro_oblicuo["y"].append(y)
+        vx=velocidad_inicial_x
+        diccionario_tiro_oblicuo["vx"].append(vx)
+        vy=velocidad_inicial_y-constantes.G*t
+        diccionario_tiro_oblicuo["vy"].append(vy)
+        ax=0
+        diccionario_tiro_oblicuo["ax"].append(ax)
+        ay=-1*constantes.G
+        diccionario_tiro_oblicuo["ay"].append(ay)
+    return diccionario_tiro_oblicuo
