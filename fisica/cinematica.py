@@ -12,6 +12,10 @@ la cantidad de divisiones y el módulo estándar 'math' para evitar dependencias
 #importar librerias necesarias y modulo de constantes !
 
 
+import math
+from .constantes import G
+
+
 def calcular_lista_tiempo(tiempo_final: float, divisiones: int) -> list[float]:
     """Genera una lista de tiempos desde 0 hasta tiempo_final dividida en N intervalos.
 
@@ -143,6 +147,43 @@ def mruv(
     Valida que el tiempo final sea positivo y que la cantidad de divisiones sea mayor a cero
     """
 
+    if tiempo_final <= 0:
+        raise ValueError("El tiempo final debe ser mayor que cero.")
+
+    if divisiones <= 0:
+        raise ValueError("La cantidad de divisiones debe ser mayor que cero.")
+
+    tiempos = calcular_lista_tiempo(tiempo_final, divisiones)
+
+    posiciones = []
+    velocidades = []
+    aceleraciones = []
+
+    for t in tiempos:
+        posicion = calcular_posicion_mruv(
+            posicion_inicial,
+            velocidad_inicial,
+            aceleracion,
+            t,
+        )
+
+        velocidad = calcular_velocidad_mruv(
+            velocidad_inicial,
+            aceleracion,
+            t,
+        )
+
+        posiciones.append(posicion)
+        velocidades.append(velocidad)
+        aceleraciones.append(aceleracion)
+
+    return {
+        "t": tiempos,
+        "x": posiciones,
+        "v": velocidades,
+        "a": aceleraciones,
+    }
+
 
 # --- FUNCIONES DE TIRO OBLICUO ---
 
@@ -156,6 +197,13 @@ def obtener_componentes_velocidad(velocidad_inicial: float, angulo: float) -> tu
     Returns:
         tuple: (v0x, v0y) componentes de la velocidad inicial.
     """
+    angulo_rad = math.radians(angulo)
+
+    v0x = velocidad_inicial * math.cos(angulo_rad)
+    v0y = velocidad_inicial * math.sin(angulo_rad)
+
+    return v0x, v0y
+
 
 
 def calcular_tiempo_vuelo(velocidad_inicial_y: float, altura_inicial: float) -> float:
@@ -171,6 +219,22 @@ def calcular_tiempo_vuelo(velocidad_inicial_y: float, altura_inicial: float) -> 
     Valida que el discriminante de la funcion cuadrática asociada sea positivo
     (2 Raices Reales Distintas)
     """
+
+    a = -0.5 * G
+    b = velocidad_inicial_y
+    c = altura_inicial
+
+    discriminante = b**2 - 4 * a * c
+
+    if discriminante < 0:
+        raise ValueError("No existen soluciones reales para el tiempo de vuelo.")
+
+    tiempo1 = (-b + math.sqrt(discriminante)) / (2 * a)
+    tiempo2 = (-b - math.sqrt(discriminante)) / (2 * a)
+
+    tiempo_vuelo = max(tiempo1, tiempo2)
+
+    return tiempo_vuelo
 
 
 def tiro_oblicuo(
@@ -200,3 +264,64 @@ def tiro_oblicuo(
             - 'ax': Lista de aceleración en el eje X (cero).
             - 'ay': Lista de aceleración en el eje Y (-G).
     """
+    if divisiones <= 0:
+        raise ValueError("La cantidad de divisiones debe ser mayor que cero.")
+
+    v0x, v0y = obtener_componentes_velocidad(
+        velocidad_inicial,
+        angulo,
+    )
+
+    
+    tiempo_vuelo = calcular_tiempo_vuelo(
+        v0y,
+        altura_inicial,
+    )
+
+
+    tiempos = calcular_lista_tiempo(
+        tiempo_vuelo,
+        divisiones,
+    )
+
+
+    posiciones_x = []
+    posiciones_y = []
+
+    velocidades_x = []
+    velocidades_y = []
+
+    aceleraciones_x = []
+    aceleraciones_y = []
+
+    
+    for t in tiempos:
+
+        
+        x = v0x * t
+        vx = v0x
+        ax = 0
+
+        
+        y = altura_inicial + v0y * t - 0.5 * G * t**2
+        vy = v0y - G * t
+        ay = -G
+
+        posiciones_x.append(x)
+        posiciones_y.append(y)
+
+        velocidades_x.append(vx)
+        velocidades_y.append(vy)
+
+        aceleraciones_x.append(ax)
+        aceleraciones_y.append(ay)
+
+    return {
+        "t": tiempos,
+        "x": posiciones_x,
+        "y": posiciones_y,
+        "vx": velocidades_x,
+        "vy": velocidades_y,
+        "ax": aceleraciones_x,
+        "ay": aceleraciones_y,
+    }

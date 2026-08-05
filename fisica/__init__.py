@@ -9,10 +9,10 @@ Se exportan las funciones principales para facilitar su uso directo.
 """
 
 # Exportación de las funciones de cálculo cinemático
-from .cinematica import mru, mruv, tiro_oblicuo
+from fisica.cinematica import mru, mruv, tiro_oblicuo
 
 # Exportación de las funciones de graficación
-from .graficos import (
+from fisica.graficos import (
     graficar_posicion,
     graficar_velocidad,
     graficar_aceleracion,
