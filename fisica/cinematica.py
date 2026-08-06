@@ -62,7 +62,7 @@ def mru(
     Valida que el tiempo final sea positivo y que la cantidad de divisiones sea mayor a cero
     """
     if tiempo_final <= 0 or divisiones <= 0:
-        raise ValueError("Tiempo final y divisiones deben ser mayores que cero.")
+        return None
 
     tiempos = calcular_lista_tiempo(tiempo_final, divisiones)
 
@@ -125,7 +125,7 @@ def mruv(
     Valida que el tiempo final sea positivo y que la cantidad de divisiones sea mayor a cero
     """
     if tiempo_final <= 0 or divisiones <= 0:
-        raise ValueError("Tiempo final y divisiones deben ser mayores que cero.")
+        return None
 
     tiempos = calcular_lista_tiempo(tiempo_final, divisiones)
 
@@ -149,7 +149,7 @@ def mruv(
                 t,
             )
         )
-        aceleraciones.append(aceleracion)
+        aceleraciones.append(-G)
 
     return {
         "t": tiempos,
@@ -193,8 +193,8 @@ def calcular_tiempo_vuelo(velocidad_inicial_y: float, altura_inicial: float) -> 
     """
     discriminante = velocidad_inicial_y**2 + 2 * G * altura_inicial
 
-    if discriminante < 0:
-        raise ValueError("El discriminante debe ser positivo.")
+    if discriminante <= 0:
+        return None
 
     return (velocidad_inicial_y + math.sqrt(discriminante)) / G
 
@@ -227,11 +227,13 @@ def tiro_oblicuo(
             - 'ay': Lista de aceleración en el eje Y (-G).
     """
     if divisiones <= 0:
-        raise ValueError("Las divisiones deben ser mayores que cero.")
+        return None
 
     vx, vy0 = obtener_componentes_velocidad(velocidad_inicial, angulo)
 
     tiempo_vuelo = calcular_tiempo_vuelo(vy0, altura_inicial)
+    if tiempo_vuelo is None or tiempo_vuelo <= 0:
+        return None
     tiempos = calcular_lista_tiempo(tiempo_vuelo, divisiones)
 
     posiciones_x = []
